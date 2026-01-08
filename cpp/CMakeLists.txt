@@ -64,6 +64,11 @@ option(CUDA_STATIC_RUNTIME "Statically link the CUDA runtime" OFF)
 # For now, disable CMake's automatic module scanning for C++ files.
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
+if(MSVC)
+  # Fix spdlog linking issue on Windows - use header-only spdlog
+  set(RAPIDS_LOGGER_HIDE_ALL_SPDLOG_SYMBOLS OFF CACHE BOOL "Use header-only spdlog on Windows" FORCE)
+endif()   
+
 # find packages we depend on
 rapids_find_package(
   CUDAToolkit REQUIRED
@@ -74,7 +79,7 @@ rapids_find_package(
 # * dependencies -----------------------------------------------------------------------------------
 
 # add third party dependencies using CPM
-rapids_cpm_init()
+rapids_cpm_init(OVERRIDE "${CMAKE_CURRENT_SOURCE_DIR}/rapids_versions.json")
 
 include(${rapids-cmake-dir}/cpm/rapids_logger.cmake)
 rapids_cpm_rapids_logger(BUILD_EXPORT_SET rmm-exports INSTALL_EXPORT_SET rmm-exports)

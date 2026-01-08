@@ -29,6 +29,11 @@
 #define STRINGIFY_DETAIL(x) #x
 #define RMM_STRINGIFY(x)    STRINGIFY_DETAIL(x)
 
+// MSVC workaround for variadic macro expansion issues
+#ifdef _MSC_VER
+#define RMM_EXPAND(x) x
+#endif
+
 /**
  * @brief Macro for checking (pre-)conditions that throws an exception when
  * a condition is violated.
@@ -53,10 +58,17 @@
  *     specified, defaults to `rmm::logic_error`.
  * @throw `_exception_type` if the condition evaluates to 0 (false).
  */
+#ifdef _MSC_VER
+// MSVC has issues with variadic macro expansion, use indirect expansion
+#define RMM_EXPECTS(...)                                           \
+  RMM_EXPAND(GET_RMM_EXPECTS_MACRO(__VA_ARGS__, RMM_EXPECTS_3, RMM_EXPECTS_2)(__VA_ARGS__))
+#define GET_RMM_EXPECTS_MACRO(_1, _2, _3, NAME, ...) NAME
+#else
 #define RMM_EXPECTS(...)                                           \
   GET_RMM_EXPECTS_MACRO(__VA_ARGS__, RMM_EXPECTS_3, RMM_EXPECTS_2) \
   (__VA_ARGS__)
 #define GET_RMM_EXPECTS_MACRO(_1, _2, _3, NAME, ...) NAME
+#endif
 #define RMM_EXPECTS_3(_condition, _reason, _exception_type)                                     \
   do {                                                                                          \
     static_assert(std::is_base_of_v<std::exception, _exception_type>);                          \
@@ -79,10 +91,16 @@
  * RMM_FAIL("Unsupported code path", std::runtime_error);
  * ```
  */
+#ifdef _MSC_VER
+#define RMM_FAIL(...)                                     \
+  RMM_EXPAND(GET_RMM_FAIL_MACRO(__VA_ARGS__, RMM_FAIL_2, RMM_FAIL_1)(__VA_ARGS__))
+#define GET_RMM_FAIL_MACRO(_1, _2, NAME, ...) NAME
+#else
 #define RMM_FAIL(...)                                     \
   GET_RMM_FAIL_MACRO(__VA_ARGS__, RMM_FAIL_2, RMM_FAIL_1) \
   (__VA_ARGS__)
 #define GET_RMM_FAIL_MACRO(_1, _2, NAME, ...) NAME
+#endif
 #define RMM_FAIL_2(_what, _exception_type)                                                   \
   /*NOLINTNEXTLINE(bugprone-macro-parentheses)*/                                             \
   throw _exception_type                                                                      \
@@ -112,10 +130,16 @@
  * ```
  *
  */
+#ifdef _MSC_VER
+#define RMM_CUDA_TRY(...)                                             \
+  RMM_EXPAND(GET_RMM_CUDA_TRY_MACRO(__VA_ARGS__, RMM_CUDA_TRY_2, RMM_CUDA_TRY_1)(__VA_ARGS__))
+#define GET_RMM_CUDA_TRY_MACRO(_1, _2, NAME, ...) NAME
+#else
 #define RMM_CUDA_TRY(...)                                             \
   GET_RMM_CUDA_TRY_MACRO(__VA_ARGS__, RMM_CUDA_TRY_2, RMM_CUDA_TRY_1) \
   (__VA_ARGS__)
 #define GET_RMM_CUDA_TRY_MACRO(_1, _2, NAME, ...) NAME
+#endif
 #define RMM_CUDA_TRY_2(_call, _exception_type)                                               \
   do {                                                                                       \
     cudaError_t const error = (_call);                                                       \
@@ -143,10 +167,17 @@
  * - RMM_CUDA_TRY_ALLOC(cuda_call): Performs error checking without specifying bytes
  * - RMM_CUDA_TRY_ALLOC(cuda_call, num_bytes): Includes the number of bytes in the error message
  */
+#ifdef _MSC_VER
+// MSVC has issues with variadic macro expansion, use indirect expansion
+#define RMM_CUDA_TRY_ALLOC(...)                                                                \
+  RMM_EXPAND(GET_RMM_CUDA_TRY_ALLOC_MACRO(__VA_ARGS__, RMM_CUDA_TRY_ALLOC_2, RMM_CUDA_TRY_ALLOC_1)(__VA_ARGS__))
+#define GET_RMM_CUDA_TRY_ALLOC_MACRO(_1, _2, NAME, ...) NAME
+#else
 #define RMM_CUDA_TRY_ALLOC(...)                                                         \
   GET_RMM_CUDA_TRY_ALLOC_MACRO(__VA_ARGS__, RMM_CUDA_TRY_ALLOC_2, RMM_CUDA_TRY_ALLOC_1) \
   (__VA_ARGS__)
 #define GET_RMM_CUDA_TRY_ALLOC_MACRO(_1, _2, NAME, ...) NAME
+#endif
 
 #define RMM_CUDA_TRY_ALLOC_2(_call, num_bytes)                                          \
   do {                                                                                  \

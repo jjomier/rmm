@@ -21,7 +21,9 @@
 
 #include <cuda_runtime_api.h>
 
-#include <dlfcn.h>
+#ifndef _MSC_VER
+  #include <dlfcn.h>
+#endif
 
 namespace RMM_NAMESPACE {
 namespace detail {
@@ -47,7 +49,7 @@ struct runtime_async_alloc {
       auto result = cudaDeviceGetAttribute(&cuda_pool_supported,
                                            cudaDevAttrMemoryPoolsSupported,
                                            rmm::get_current_cuda_device().value());
-      return result == cudaSuccess and cuda_pool_supported == 1;
+      return result == cudaSuccess && cuda_pool_supported == 1;
     }()};
     return driver_supports_pool;
   }
@@ -121,7 +123,7 @@ struct concurrent_managed_access {
       auto result                 = cudaDeviceGetAttribute(&concurrentManagedAccess,
                                            cudaDevAttrConcurrentManagedAccess,
                                            rmm::get_current_cuda_device().value());
-      return result == cudaSuccess and concurrentManagedAccess == 1;
+      return result == cudaSuccess && concurrentManagedAccess == 1;
     }()};
     return driver_supports_concurrent_managed_access;
   }

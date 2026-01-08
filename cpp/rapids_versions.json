@@ -1,0 +1,10 @@
+{
+    "packages": {
+      "rapids_logger": {
+        "version": "0.3.0",
+        "git_url": "https://github.com/jjomier/rapids-logger.git",
+        "git_tag": "msvc-support"
+      }
+    }
+}
+  
