@@ -1,9 +1,9 @@
 {
     "packages": {
       "rapids_logger": {
-        "version": "0.3.0",
+        "version": "0.2.0",
         "git_url": "https://github.com/jjomier/rapids-logger.git",
-        "git_tag": "msvc-support"
+        "git_tag": "release/0.2.0-windows"
       }
     }
 }
